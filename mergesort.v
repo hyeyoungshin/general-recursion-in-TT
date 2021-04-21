@@ -1,5 +1,7 @@
 Module Merge_Sort.
 
+Section Merge_Sort. 
+
 Variable A: Set.
 
 Variable split_list : list A -> (list A) * (list A).
@@ -25,4 +27,9 @@ match h with
 end.
 
 End Merge_Sort.
+
+Definition l : list nat := cons 3 nil.
+
+Lemma lD: merge_Dom  l.
+
 
