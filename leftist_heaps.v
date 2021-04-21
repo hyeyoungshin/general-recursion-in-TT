@@ -6,7 +6,15 @@
 
    This can be done with simultaneous induction-recursion
    by defining the type of leftist trees simultaneously
-   with the rank function.
+   with the rank function:
+
+
+   data LTree: Set
+      ltnil: LTree
+      ltnode: (left right: LTree), rank left >= rank right -> LTree
+   with rank: LTree -> nat
+      rank ltnil = 0
+      rank (ltnode left right h) = (rank right) + 1
 
    We don't have induction-recursion in Coq,
    so we use Conor McBride's indexing trick.
