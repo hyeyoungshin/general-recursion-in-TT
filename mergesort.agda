@@ -1,5 +1,5 @@
-----------------------------------------------------------
--- to make mergesort generic
+-- mergesort implementation by Vitus (https://stackoverflow.com/questions/22265402/merge-sort-in-agda)
+
 
 open import Relation.Binary
 open import Relation.Binary.PropositionalEquality
@@ -10,9 +10,6 @@ module mergesort
   (strictTotalOrder : IsStrictTotalOrder _≡_ _<_) where
 
 open IsStrictTotalOrder strictTotalOrder
-----------------------------------------------------------
-
-module mergesort where
 
 open import Agda.Builtin.Nat
 open import Data.List
@@ -51,7 +48,11 @@ split (x ∷ xs) with split xs
 
 
 _<ₗ_ : Rel (List ℕ) _
-_<ₗ_ = Data.Nat._<_ on length
+_<ₗ_ = _<'_ on length
+
+s≤'s : ∀ {m n} → m ≤' n → suc m ≤' suc n
+s≤'s ≤'-refl = ≤'-refl
+s≤'s (≤'-step p) = ≤'-step (s≤'s p)
 
 -- mergesort : (List ℕ -> List ℕ)
 -- mergesort [] = []
