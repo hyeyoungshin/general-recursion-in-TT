@@ -1,5 +1,4 @@
--- mergesort implementation by Vitus (https://stackoverflow.com/questions/22265402/merge-sort-in-agda)
-
+-- mergesort implementation as described by Bove and Capretta
 
 open import Relation.Binary
 open import Relation.Binary.PropositionalEquality
@@ -34,20 +33,20 @@ split [] = [] , []
 split (x ∷ xs) with split xs
 ...               | first , second = x ∷ second , first
 
-first_half : (List A → (List A × List A)) → List A → List A
-first_half f l = fst (f l)
+first-half : (List A → (List A × List A)) → List A → List A
+first-half f l = fst (f l)
 
-second_half : (List A → List A × List A) → List A → List A
-second_half f l = snd (f l)
+second-half : (List A → List A × List A) → List A → List A
+second-half f l = snd (f l)
 
 
-data merge_Dom : List A → Set where
- mD_nil : merge_Dom []
- mD_single : (x : A) → merge_Dom (x ∷ [])
- mD_split : (l : List A) → merge_Dom (first_half split l) → merge_Dom (second_half split l) → merge_Dom l
+data merge-Dom : List A → Set where
+ mD-nil : merge-Dom []
+ mD-single : (x : A) → merge-Dom (x ∷ [])
+ mD-split : (l : List A) → merge-Dom (first-half split l) → merge-Dom (second-half split l) → merge-Dom l
 
-mergeD_sort : (l : List A) → (merge_Dom l) → List A
-mergeD .[] sort mD_nil = []
-mergeD .(x ∷ []) sort mD x single = x ∷ []
-mergeD l sort (mD .l split md md₁) = {!merge (mergeD_sort (first_half l) md) (mergeD_sort (second_half l) md₁)!}
+mergeD-sort : (l : List A) → (merge-Dom l) → List A
+mergeD-sort .[] mD-nil = []
+mergeD-sort .(x ∷ []) (mD-single x) = x ∷ []
+mergeD-sort l (mD-split .l md₁ md₂) = merge (mergeD-sort (first-half split l) md₁) (mergeD-sort (second-half split l) md₂)
 
