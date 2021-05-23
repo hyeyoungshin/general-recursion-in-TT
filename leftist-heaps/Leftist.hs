@@ -31,6 +31,51 @@ rank :: LeftistHeap a -> Int
 rank E = 0
 rank (T r _ _ _) = r
 
+-- Computed rank
+compRank :: LeftistHeap a -> Int
+compRank E = 0
+compRank (T _ _ _ right) = compRank right + 1
+
+-- Checking that the ranks is correct
+rankOK :: LeftistHeap a -> Bool
+rankOK E = True
+rankOK (T r _ _ right) = r == rank right + 1 && rankOK right
+
+{- Checking the leftist rank property -}
+rankProp :: LeftistHeap a -> Bool
+rankProp E = True
+rankProp (T _ _ left right) =
+  rank left >= rank right && rankProp left && rankProp right
+
+
+-- Extracting the root (if not empty)
+root :: LeftistHeap a -> Maybe a
+root E = Nothing
+root (T _ x _ _) = Just x
+
+-- Comparing with a Maybe value
+infix 5 <~
+
+(<~) :: Ord a => a -> Maybe a -> Bool
+x <~ Nothing = True
+x <~ (Just y) = x <= y
+
+{-
+Checking the heap property:
+Every node must be smaller or equal to its descendants
+-}
+
+heapOrd :: Ord a => LeftistHeap a -> Bool
+heapOrd E = True
+heapOrd (T _ x left right) =
+  x <~ root left  && heapOrd left  &&
+  x <~ root right && heapOrd right
+
+-- Check if it is a correct Leftist Heap
+lhCheck :: Ord a => LeftistHeap a -> Bool
+lhCheck t = rankOK t && rankProp t && heapOrd t
+
+
 {-
 Suppose we have two heaps a and b and a value x.
 If we know that x is smaller than all the values contained in a and b,
