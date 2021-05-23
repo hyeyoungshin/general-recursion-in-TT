@@ -6,15 +6,23 @@
 
    This can be done with simultaneous induction-recursion
    by defining the type of leftist trees simultaneously
-   with the rank function:
-
+   with the rank function.
+  
+   We also simultaneously check the heap property.
 
    data LTree: Set
       ltnil: LTree
-      ltnode: (left right: LTree), rank left >= rank right -> LTree
+      ltnode: (x:nat)(left right: LTree), 
+                rank left >= rank right -> 
+                x <~ root left -> x <~ root right -> LTree
    with rank: LTree -> nat
-      rank ltnil = 0
-      rank (ltnode left right h) = (rank right) + 1
+        rank ltnil = 0
+        rank (ltnode left right h) = (rank right) + 1
+   with root: LTree -> option nat
+        root ltnil = None
+        root (ltnode x _ _ _ _ _) = Some x
+
+   (<~): nat -> option nat -> Prop   defined separately
 
    We don't have induction-recursion in Coq,
    so we use Conor McBride's indexing trick.
