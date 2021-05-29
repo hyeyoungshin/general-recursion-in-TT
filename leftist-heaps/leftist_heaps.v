@@ -28,31 +28,47 @@
    so we use Conor McBride's indexing trick.
 *)
 
+Definition Rank := nat.
+Definition Data := nat.
 
-(* First, we indexed trees on their rank. *)
+(* Leftist Heaps indexed both on rank and root element
+      Empty heap not allowed for now *)
 
-Inductive Leftist: nat -> Set :=
-  lnil : Leftist 0
-| lnode : forall (lrank: nat)(ltree: Leftist lrank)
-                 (rrank: nat)(rtree: Leftist rrank),
-          lrank >= rrank -> Leftist (S rrank).
+Inductive Leftist: Rank -> Data -> Set :=
+  lnil : forall (x:Data), Leftist 1 x
+| lnode : forall (x:Data)
+                 (lrank: Rank)(y:Data)(ltree: Leftist lrank y)
+                 (rrank: Rank)(z:Data)(rtree: Leftist rrank z),
+          lrank >= rrank -> x <= y -> x <= z -> Leftist (S rrank) x.
 
-(* Then we hide the rank. *)
+(* We put all heaps in a single type *)
 
-Record LTree: Set := ltree
-  { lt_rank: nat;
-    lt_tree: Leftist lt_rank
+Record LTreeRec: Set := ltree
+  { ltr_rank: Rank;
+    ltr_root: Data;
+    ltr_tree: Leftist ltr_rank ltr_root
   }.
+
+Definition LTree: Set := option LTreeRec.
+
+Definition lt_rank (t:LTree): Rank :=
+  match t with
+    None => 0
+  | Some t => ltr_rank t
+  end.
 
 (* The derived constructors. *)
 
-Definition ltnil: LTree := ltree 0 lnil.
+Definition ltnil: LTree := None.
 
-Definition ltnode (left right: LTree): lt_rank left >= lt_rank right -> LTree :=
-  fun h => ltree (S (lt_rank right))
-                 (lnode (lt_rank left)  (lt_tree left) 
-                        (lt_rank right) (lt_tree right)
-                        h).
+Definition ltrNode (left right: LTreeRec): 
+  forall (x:Data), 
+    ltr_rank left >= ltr_rank right -> 
+    x <= ltr_root left -> x <= ltr_root right -> LTreeRec :=
+  fun x h pl pr => ltree (S (ltr_rank right)) x
+                     (lnode x (ltr_rank left)  (ltr_root left)  (ltr_tree left)
+                              (ltr_rank right) (ltr_root right) (ltr_tree right)
+                            h pl pr).
 
 (* Equational characterization of rank. *)
 
@@ -61,8 +77,10 @@ Proof.
 auto.
 Qed.
 
+(*
 Lemma rank_node: 
   forall left right h, lt_rank (ltnode left right h) = S (lt_rank right).
 Proof.
 auto.
 Qed.
+*)
