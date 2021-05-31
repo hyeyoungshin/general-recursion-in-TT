@@ -35,7 +35,7 @@ Definition Data := nat.
       Empty heap not allowed for now *)
 
 Inductive Leftist: Rank -> Data -> Set :=
-  lnil : forall (x:Data), Leftist 1 x
+  lsingle : forall (x:Data), Leftist 1 x
 | lnode : forall (x:Data)
                  (lrank: Rank)(y:Data)(ltree: Leftist lrank y)
                  (rrank: Rank)(z:Data)(rtree: Leftist rrank z),
@@ -43,15 +43,41 @@ Inductive Leftist: Rank -> Data -> Set :=
 
 (* We put all heaps in a single type *)
 
-Record LTreeRec: Set := ltree
+Record LTree: Set := ltree
   { ltr_rank: Rank;
     ltr_root: Data;
     ltr_tree: Leftist ltr_rank ltr_root
   }.
 
-Definition LTree: Set := option LTreeRec.
 
-Definition lt_rank (t:LTree): Rank :=
+Definition ltSingle (x: Data): LTree := ltree 1 x (lsingle x).
+
+Definition ltNode (left right: LTree): 
+  forall (x:Data), 
+    ltr_rank left >= ltr_rank right -> 
+    x <= ltr_root left -> x <= ltr_root right -> LTree :=
+  fun x h pl pr => ltree (S (ltr_rank right)) x
+                     (lnode x (ltr_rank left)  (ltr_root left)  (ltr_tree left)
+                              (ltr_rank right) (ltr_root right) (ltr_tree right)
+                            h pl pr).
+
+
+
+
+
+
+
+
+
+
+
+
+(* We add the empty heap to the structure *) 
+
+
+Definition LHeap: Set := option LTree.
+
+Definition lt_rank (t:LHeap): Rank :=
   match t with
     None => 0
   | Some t => ltr_rank t
@@ -59,20 +85,12 @@ Definition lt_rank (t:LTree): Rank :=
 
 (* The derived constructors. *)
 
-Definition ltnil: LTree := None.
+Definition lhnil: LHeap := None.
 
-Definition ltrNode (left right: LTreeRec): 
-  forall (x:Data), 
-    ltr_rank left >= ltr_rank right -> 
-    x <= ltr_root left -> x <= ltr_root right -> LTreeRec :=
-  fun x h pl pr => ltree (S (ltr_rank right)) x
-                     (lnode x (ltr_rank left)  (ltr_root left)  (ltr_tree left)
-                              (ltr_rank right) (ltr_root right) (ltr_tree right)
-                            h pl pr).
 
 (* Equational characterization of rank. *)
 
-Lemma rank_nil: lt_rank ltnil = 0.
+Lemma rank_nil: lt_rank lhnil = 0.
 Proof.
 auto.
 Qed.
